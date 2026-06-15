@@ -81,17 +81,37 @@ export default function DashboardPage() {
 }, [selectedLog]); 
 
   const fetchLogs = async () => {
-    try {
-      const res = await fetch('/api/logs')
-      const data = await res.json()
-      setLogs(data.logs)
-      setFilteredLogs(data.logs)
-      setStats(data.stats)
-    } catch (err) {
-      console.error('Failed to fetch logs:', err)
+  try {
+    const res = await fetch('/api/auth/logs')
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`)
     }
+
+    const data = await res.json()
+
+    setLogs(Array.isArray(data.logs) ? data.logs : [])
+    setFilteredLogs(Array.isArray(data.logs) ? data.logs : [])
+
+    setStats(
+      data.stats || {
+        sent: 0,
+        failed: 0,
+      }
+    )
+  } catch (err) {
+    console.error('Failed to fetch logs:', err)
+
+    setLogs([])
+    setFilteredLogs([])
+    setStats({
+      sent: 0,
+      failed: 0,
+    })
+  } finally {
     setLoading(false)
   }
+}
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
