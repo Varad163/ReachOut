@@ -390,7 +390,7 @@ export default function LandingPage() {
               <h4 className="text-black font-semibold mb-4 text-sm">Connect</h4>
               <ul className="space-y-3 text-sm">
                 <li><a href="#" className="text-gray-600 hover:text-black transition">Twitter</a></li>
-                <li><a href="https://www.linkedin.com/in/sanket-adsare-573659257/" className="text-gray-600 hover:text-black transition">LinkedIn</a></li>
+                <li><a href="https://www.linkedin.com/in/varadraj-gholap-04a42228a/" className="text-gray-600 hover:text-black transition">LinkedIn</a></li>
                 <li><a href="" className="text-gray-600 hover:text-black transition">GitHub</a></li>
               </ul>
             </div>

@@ -5,9 +5,10 @@ import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/mail';
 import { extractEmails } from '@/utils/emailExtractor';
 
+
 export async function POST(req: NextRequest) {
   try {
-    const { data: session } = useSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

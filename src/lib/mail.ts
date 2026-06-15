@@ -37,7 +37,7 @@ export async function sendEmail(
     attachments: resumeBuffer
       ? [
           {
-            filename: 'Sanket_Adsare_SDE.pdf',
+            filename: 'Varadraj_Gholap_SDE.pdf',
             // content: resumeBuffer,
             // contentType: 'application/pdf',
             path: resumeUrl,
