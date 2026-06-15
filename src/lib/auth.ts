@@ -1,13 +1,9 @@
-import { type NextAuthOptions } from 'next-auth';
-
+import { NextAuthOptions } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
-
-console.log("GOOGLE_CLIENT_ID =", process.env.GOOGLE_CLIENT_ID);
-console.log("GOOGLE_CLIENT_SECRET =", process.env.GOOGLE_CLIENT_SECRET);
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
@@ -64,12 +60,18 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
    async session({ session, token }) {
-  if (session.user && token?.id) {
-    session.user.id = token.id as string;
-  }
+    if (session.user && token?.id) {
+      const user = await prisma.user.findUnique({
+        where: { id: token.id as string },
+        select: { image: true },
+      })
 
-  return session;
-},
+      session.user.id = token.id as string
+      session.user.image = user?.image || session.user.image
+    }
+
+    return session
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
