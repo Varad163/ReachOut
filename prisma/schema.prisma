@@ -20,6 +20,14 @@ enum GenerationMode {
   MANUAL  
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
 model User {
   id    String @id @default(cuid())
   name  String?

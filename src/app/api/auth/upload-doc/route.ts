@@ -14,7 +14,7 @@ cloudinary.v2.config({
 export async function POST(req: Request) {
   // 🔐 Admin check
   const session = await getServerSession(authOptions)
-  if (session?.user?.email !== 'sanketadsare5@gmail.com') {
+  if (session?.user?.email !== 'varadgholap163@gmail.com') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 

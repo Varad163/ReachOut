@@ -41,7 +41,7 @@ export default function DocumentationPage() {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      setIsAdmin(session.user?.email === 'sanketadsare5@gmail.com')
+      setIsAdmin(session.user?.email === 'varadgholap163@gmail.com')
     } else {
       setIsAdmin(false)
     }
@@ -60,7 +60,7 @@ export default function DocumentationPage() {
 
   const fetchDocumentation = async () => {
     try {
-      const res = await fetch('/api/documentation')
+      const res = await fetch('/api/auth/documentation')
       const data = await res.json()
       setSections(data)
     } catch (error) {
@@ -149,7 +149,7 @@ export default function DocumentationPage() {
     }
 
     try {
-      const res = await fetch('/api/documentation', {
+      const res = await fetch('/api/auth/documentation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newSection)
@@ -183,7 +183,7 @@ export default function DocumentationPage() {
     }
 
     try {
-      const res = await fetch(`/api/documentation/${editingSection.id}`, {
+      const res = await fetch(`/api/auth/documentation/${editingSection.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingSection)
@@ -203,7 +203,7 @@ export default function DocumentationPage() {
     if (!confirm('Are you sure you want to delete this section?')) return
 
     try {
-      const res = await fetch(`/api/documentation/${id}`, {
+      const res = await fetch(`/api/auth/documentation/${id}`, {
         method: 'DELETE'
       })
 
@@ -231,7 +231,7 @@ export default function DocumentationPage() {
 
     try {
       const sectionIds = newSections.map(s => s.id)
-      await fetch('/api/documentation/reorder', {
+      await fetch('/api/auth/documentation/reorder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sectionIds })

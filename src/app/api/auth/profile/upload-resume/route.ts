@@ -11,7 +11,7 @@
 // const UPLOAD_DIR = path.join(process.cwd(), 'public', 'resumes');
 
 // export async function POST(req: NextRequest) {
-//   const session = await getServerSession(authOptions);
+//   const { data: session } = useSession();
 
 //   if (!session?.user?.email) {
 //     return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -63,13 +63,14 @@
 
 
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
+
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { uploadPDF, deletePDF } from '@/lib/cloudinary';
+import { useSession } from 'next-auth/react';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const { data: session } = useSession();
 
   if (!session?.user?.email) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });

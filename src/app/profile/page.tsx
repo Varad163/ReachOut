@@ -1,183 +1,3 @@
-// 'use client';
-// import { useState, useEffect } from 'react';
-// import { useSession } from 'next-auth/react';
-// import { useRouter } from 'next/navigation';
-// import 'pdfjs-dist/webpack.mjs';
-
-// export default function ProfilePage() {
-//   const { data: session, status } = useSession();
-//   const router = useRouter();
-//   const [resumeFile, setResumeFile] = useState<File | null>(null);
-//   const [resumeUrl, setResumeUrl] = useState('');
-//   const [driveLink, setDriveLink] = useState('');
-//   const [smtp, setSmtp] = useState({ email: '', host: '', port: '', password: '' });
-//   const [loading, setLoading] = useState(false);
-//   const [message, setMessage] = useState('');
-  
-//   useEffect(() => {
-//     // fetch existing profile data to prefill fields
-//     (async () => {
-//       try {
-//         const res = await fetch('/api/profile/me');
-//         if (res.ok) {
-//           const data = await res.json();
-//           if (data.resumePdfUrl) setResumeUrl(data.resumePdfUrl);
-//           if (data.resumeDriveLink) setDriveLink(data.resumeDriveLink);
-//           if (data.smtpEmail || data.smtpHost || data.smtpPort) {
-//             setSmtp({ email: data.smtpEmail || '', host: data.smtpHost || '', port: String(data.smtpPort || ''), password: '' });
-//           }
-//         }
-//       } catch (err) {
-//         console.error('profile prefill error', err);
-//       }
-//     })();
-//   }, []);
-
-//   useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
-
-//   const handleResumeUpload = async () => {
-//     if (!resumeFile) return;
-//     // client-side max file size (5MB)
-//     const MAX_BYTES = 5 * 1024 * 1024;
-//     if (resumeFile.size > MAX_BYTES) {
-//       setMessage('File too large. Max 5MB allowed.');
-//       return;
-//     }
-
-//     setLoading(true); setMessage('');
-
-//     try {
-//       // Extract text client-side using pdf.js
-//       const pdfjs = await import('pdfjs-dist/webpack.mjs');
-//       const arrayBuffer = await resumeFile.arrayBuffer();
-//       const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
-//       const pdf = await loadingTask.promise;
-
-//       let fullText = '';
-//       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-//         const page = await pdf.getPage(pageNum);
-//         const textContent = await page.getTextContent();
-//         textContent.items.forEach((item: any) => {
-//           if ('str' in item) {
-//             fullText += item.str + ' ';
-//           }
-//         });
-//         fullText += '\n\n';
-//       }
-//       const extractedText = fullText.trim();
-
-//       // Prepare form data with file + extracted text
-//       const formData = new FormData();
-//       formData.append('resume', resumeFile);
-//       formData.append('resumeText', extractedText);
-      
-//       console.log('Extracted resume text:', extractedText);
-//       console.log('Text length:', extractedText.length);
-
-
-//       // Upload to server
-//       const res = await fetch('/api/profile/upload-resume', { method: 'POST', body: formData });
-//       const data = await res.json();
-//       if (res.ok) {
-//         setResumeUrl(data.resumePdfUrl);
-//         setMessage('Resume uploaded and text saved');
-//       } else {
-//         setMessage(data.error || 'Upload failed');
-//       }
-//     } catch (err: any) {
-//       console.error('Upload error:', err);
-//       setMessage(err?.message || 'Upload failed');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-
-//   const handleDriveLinkSave = async () => {
-//     setLoading(true); setMessage('');
-//     try {
-//       const res = await fetch('/api/profile/drive-link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ resumeDriveLink: driveLink }) });
-//       const data = await res.json();
-//       if (res.ok) {
-//         setMessage(data.message || 'Updated');
-//         setDriveLink(data.resumeDriveLink || '');
-//       } else {
-//         setMessage(data.error || 'Update failed');
-//       }
-//     } catch (err: any) { setMessage(err?.message || 'Update failed'); }
-//     setLoading(false);
-//   };
-
-//   const handleSmtpSave = async () => {
-//     setLoading(true); setMessage('');
-//     try {
-//       const res = await fetch('/api/profile/smtp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ smtpEmail: smtp.email, smtpHost: smtp.host, smtpPort: smtp.port, smtpPassword: smtp.password }) });
-//       const data = await res.json();
-//       if (res.ok) {
-//         setMessage(data.message || 'SMTP saved');
-//       } else {
-//         setMessage(data.error || 'SMTP failed');
-//       }
-//     } catch (err: any) { setMessage(err?.message || 'SMTP failed'); }
-//     setLoading(false);
-//   };
-
-//   if (status === 'loading') return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-
-//   return (
-//     <div className="min-h-screen bg-gray-500 py-8">
-//       <div className="max-w-4xl mx-auto px-4">
-//         <div className="bg-gray-400 rounded-lg shadow p-6">
-//           <h1 className="text-2xl font-bold mb-4">Profile Setup</h1>
-//           {message && <div className="mb-4 p-3 bg-blue-50 border rounded text-blue-700">{message}</div>}
-//           <div className="mb-6">
-//             <h2 className="text-lg font-semibold mb-2">Upload Resume (PDF)</h2>
-//             <input type="file" accept="application/pdf" onChange={(e) => setResumeFile(e.target.files?.[0] || null)} className="mb-2" />
-//             <button onClick={handleResumeUpload} disabled={loading || !resumeFile} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">Upload</button>
-//             {resumeUrl && <p className="mt-2 text-sm text-green-600">Resume uploaded</p>}
-//           </div>
-// <input
-//   type="file"
-//   accept="image/*"
-//   onChange={(e) => {
-//     const file = e.target.files?.[0];
-//     if (!file) return;
-
-//     const formData = new FormData();
-//     formData.append('photo', file);
-
-//     fetch('/api/profile/photo', {
-//       method: 'POST',
-//       body: formData,
-//     });
-//   }}
-// />
-
-
-//           <div className="mb-6">
-//             <h2 className="text-lg font-semibold mb-2">Resume Drive Link (Optional)</h2>
-//             <input type="url" value={driveLink} onChange={(e) => setDriveLink(e.target.value)} placeholder="https://drive.google.com/..." className="w-full px-4 py-2 border rounded mb-2" />
-//             <button onClick={handleDriveLinkSave} disabled={loading} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">Save Link</button>
-//           </div>
-//           <div className="mb-6">
-//             <h2 className="text-lg font-semibold mb-2">SMTP Configuration</h2>
-//             <div className="grid grid-cols-2 gap-4">
-//               <input type="email" placeholder="SMTP Email" value={smtp.email} onChange={(e) => setSmtp({ ...smtp, email: e.target.value })} className="px-4 py-2 border rounded" />
-//               <input type="text" placeholder="SMTP Host" value={smtp.host} onChange={(e) => setSmtp({ ...smtp, host: e.target.value })} className="px-4 py-2 border rounded" />
-//               <input type="number" placeholder="Port" value={smtp.port} onChange={(e) => setSmtp({ ...smtp, port: e.target.value })} className="px-4 py-2 border rounded" />
-//               <input type="password" placeholder="App Password" value={smtp.password} onChange={(e) => setSmtp({ ...smtp, password: e.target.value })} className="px-4 py-2 border rounded" />
-//             </div>
-//             <button onClick={handleSmtpSave} disabled={loading} className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">Save SMTP</button>
-//           </div>
-//           <div className="flex gap-4">
-//             <button onClick={() => router.push('/workspace')} className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Go to Workspace</button>
-//             <button onClick={() => router.push('/dashboard')} className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700">View Dashboard</button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
 
 
 'use client'
@@ -190,7 +10,7 @@ import {
   Upload, CheckCircle, AlertCircle, Loader, 
   FileText, Mail, Key, Link as LinkIcon, User, X, Image as ImageIcon
 } from 'lucide-react'
-import 'pdfjs-dist/webpack.mjs'
+
 import { signIn } from 'next-auth/react'
 
 
@@ -229,7 +49,7 @@ export default function ProfilePage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/profile/me')
+        const res = await fetch('/api/auth/profile/me')
         if (res.ok) {
           const data = await res.json()
           if (data.resumePdfUrl) setResumeUrl(data.resumePdfUrl)
@@ -324,7 +144,7 @@ export default function ProfilePage() {
     const formData = new FormData()
     formData.append('photo', file)
 
-    const res = await fetch('/api/profile/photo', {
+    const res = await fetch('/api/auth/profile/photo', {
       method: 'POST',
       body: formData,
     })
@@ -362,32 +182,11 @@ export default function ProfilePage() {
     setLoading(true)
 
     try {
-      const pdfjs = await import('pdfjs-dist/webpack.mjs')
-      const arrayBuffer = await resumeFile.arrayBuffer()
-      const loadingTask = pdfjs.getDocument({ data: arrayBuffer })
-      const pdf = await loadingTask.promise
-
-      let fullText = ''
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum)
-        const textContent = await page.getTextContent()
-        textContent.items.forEach((item: any) => {
-          if ('str' in item) {
-            fullText += item.str + ' '
-          }
-        })
-        fullText += '\n\n'
-      }
-      const extractedText = fullText.trim()
-
       const formData = new FormData()
-      formData.append('resume', resumeFile)
-      formData.append('resumeText', extractedText)
-      
-      console.log('Extracted resume text:', extractedText)
-      console.log('Text length:', extractedText.length)
+formData.append('resume', resumeFile)
+     
 
-      const res = await fetch('/api/profile/upload-resume', { 
+      const res = await fetch('/api/auth/profile/upload-resume', { 
         method: 'POST', 
         body: formData 
       })
@@ -417,7 +216,7 @@ export default function ProfilePage() {
   const handleDriveLinkSave = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/profile/drive-link', { 
+      const res = await fetch('/api/auth/profile/drive-link', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ resumeDriveLink: driveLink }) 
@@ -448,7 +247,7 @@ export default function ProfilePage() {
     }
     setLoading(true)
     try {
-      const res = await fetch('/api/profile/smtp', { 
+      const res = await fetch('/api/auth/profile/smtp', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ 
