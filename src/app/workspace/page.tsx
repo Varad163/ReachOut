@@ -143,7 +143,7 @@ export default function WorkspacePage() {
     
     setGenerating(true)
     try {
-      const res = await fetch('/api/ai/generate', {
+      const res = await fetch('/api/auth/ai/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode, input })
@@ -171,7 +171,7 @@ export default function WorkspacePage() {
     
     setSending(true)
     try {
-      const res = await fetch('/api/email/send', {
+      const res = await fetch('/api/auth/email/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

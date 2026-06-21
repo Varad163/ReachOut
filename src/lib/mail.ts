@@ -34,12 +34,10 @@ export async function sendEmail(
     html: body.replace(/\n/g, '<br>'),
 
     // ✅ Attach resume if available
-    attachments: resumeBuffer
+    attachments: resumeUrl
       ? [
           {
-            filename: 'Varadraj_Gholap_SDE.pdf',
-            // content: resumeBuffer,
-            // contentType: 'application/pdf',
+            filename: 'Resume.pdf',
             path: resumeUrl,
           },
         ]

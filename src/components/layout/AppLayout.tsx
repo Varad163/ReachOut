@@ -6,7 +6,7 @@
 'use client'
 
 import { useState, ReactNode } from 'react'
-import { redirect, usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { 
   Zap, History, BookOpen, CreditCard, User, LogOut, 
@@ -85,7 +85,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         {/* User & Logout */}
         <div className="mt-auto p-4 border-t border-slate-200 space-y-1">
           {sidebarOpen && session?.user && (
-            <div onClick={()=>(redirect("/profile"))} className="px-4 py-2 mb-2 flex flex-col items-center bg-gradient-to-br  to-gray-600 rounded-lg text-white text-center">
+            <div onClick={() => router.push("/profile")} className="px-4 py-2 mb-2 flex flex-col items-center cursor-pointer bg-gradient-to-br to-gray-600 rounded-lg text-white text-center">
                 
                 <img
                     

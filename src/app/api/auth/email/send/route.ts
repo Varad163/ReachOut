@@ -69,8 +69,7 @@ export async function POST(req: NextRequest) {
           email,
           subject,
           body,
-          // resumeBuffer // ✅ attachment
-          user.resumePdfUrl!
+          user.resumePdfUrl || undefined
         );
 
         await prisma.emailLog.create({

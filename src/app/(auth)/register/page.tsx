@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Mail } from 'lucide-react';
+import { signIn } from 'next-auth/react';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
@@ -24,6 +25,19 @@ export default function RegisterPage() {
 
       if (!res.ok) {
         setError(data.error);
+        setLoading(false);
+        return;
+      }
+
+      // Automatically sign in the user after registration
+      const loginRes = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      });
+
+      if (loginRes?.error) {
+        setError('Registration succeeded, but login failed. Please sign in manually.');
         setLoading(false);
         return;
       }
