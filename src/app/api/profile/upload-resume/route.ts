@@ -11,7 +11,7 @@
 // const UPLOAD_DIR = path.join(process.cwd(), 'public', 'resumes');
 
 // export async function POST(req: NextRequest) {
-//   const { data: session } = useSession();
+//   const session = await getServerSession(authOptions);
 
 //   if (!session?.user?.email) {
 //     return Response.json({ error: 'Unauthorized' }, { status: 401 });

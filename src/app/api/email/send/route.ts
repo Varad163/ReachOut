@@ -5,7 +5,6 @@ import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/mail';
 import { extractEmails } from '@/utils/emailExtractor';
 
-
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -69,7 +68,8 @@ export async function POST(req: NextRequest) {
           email,
           subject,
           body,
-          user.resumePdfUrl || undefined
+          // resumeBuffer // ✅ attachment
+          user.resumePdfUrl!
         );
 
         await prisma.emailLog.create({

@@ -1,3 +1,132 @@
+// 'use client';
+
+// import { useState, useEffect } from 'react';
+// import { useSession } from 'next-auth/react';
+// import { useRouter } from 'next/navigation';
+
+// interface Log {
+//   id: string;
+//   recruiterEmail: string;
+//   subject: string;
+//   status: string;
+//   errorMessage?: string;
+//   createdAt: string;
+// }
+
+// export default function DashboardPage() {
+//   const { data: session, status } = useSession();
+//   const router = useRouter();
+//   const [logs, setLogs] = useState<Log[]>([]);
+//   const [stats, setStats] = useState({ sent: 0, failed: 0 });
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     if (status === 'unauthenticated') {
+//       router.push('/login');
+//     } else if (status === 'authenticated') {
+//       fetchLogs();
+//     }
+//   }, [status, router]);
+
+//   const fetchLogs = async () => {
+//     try {
+//       const res = await fetch('/api/logs');
+//       const data = await res.json();
+//       setLogs(data.logs);
+//       setStats(data.stats);
+//     } catch (err) {
+//       console.error('Failed to fetch logs:', err);
+//     }
+//     setLoading(false);
+//   };
+
+//   if (status === 'loading' || loading) {
+//     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gray-500 py-8">
+//       <div className="max-w-6xl mx-auto px-4">
+//         <div className="bg-gray-500 rounded-lg shadow p-6">
+//           <h1 className="text-2xl font-bold mb-6">Application History</h1>
+
+//           {/* Stats */}
+//           <div className="grid grid-cols-2 gap-4 mb-6">
+//             <div className="bg-green-200 p-4 rounded-lg">
+//               <p className="text-sm text-gray-600">Total Sent</p>
+//               <p className="text-3xl font-bold text-green-600">{stats.sent}</p>
+//             </div>
+//             <div className="bg-red-50 p-4 rounded-lg">
+//               <p className="text-sm text-gray-600">Failed</p>
+//               <p className="text-3xl font-bold text-red-600">{stats.failed}</p>
+//             </div>
+//           </div>
+
+//           {/* Logs Table */}
+//           <div className="overflow-x-auto">
+//             <table className="w-full">
+//               <thead>
+//                 <tr className="bg-black">
+//                   <th className="px-4 py-2 text-left">Email</th>
+//                   <th className="px-4 py-2 text-left">Subject</th>
+//                   <th className="px-4 py-2 text-left">Status</th>
+//                   <th className="px-4 py-2 text-left">Date</th>
+//                   <th className="px-4 py-2 text-left">Error</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {logs.map((log) => (
+//                   <tr key={log.id} className="border-b">
+//                     <td className="px-4 py-2">{log.recruiterEmail}</td>
+//                     <td className="px-4 py-2 truncate max-w-xs">{log.subject}</td>
+//                     <td className="px-4 py-2">
+//                       <span
+//                         className={`px-2 py-1 rounded text-xs ${
+//                           log.status === 'SENT'
+//                             ? 'bg-green-400 text-green-800'
+//                             : 'bg-red-300 text-red-800'
+//                         }`}
+//                       >
+//                         {log.status}
+//                       </span>
+//                     </td>
+//                     <td className="px-4 py-2 text-sm text-gray-600">
+//                       {new Date(log.createdAt).toLocaleString()}
+//                     </td>
+//                     <td className="px-4 py-2 text-sm text-red-600 truncate max-w-xs">
+//                       {log.errorMessage || '-'}
+//                     </td>
+//                     <td>
+//                       <button className="text-blue-600 hover:underline" onClick={() => router.push(`/dashboard/log/${log.id}`)}>
+//                         View
+//                       </button>
+//                     </td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+
+//           {logs.length === 0 && (
+//             <p className="text-center text-gray-500 py-8">No applications yet</p>
+//           )}
+
+//           <button
+//             onClick={() => router.push('/workspace')}
+//             className="mt-6 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+//           >
+//             Back to Workspace
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// ============================================
+// app/dashboard/page.tsx
+// Enhanced Dashboard with Email History
+// ============================================
 
 'use client'
 
@@ -81,37 +210,17 @@ export default function DashboardPage() {
 }, [selectedLog]); 
 
   const fetchLogs = async () => {
-  try {
-    const res = await fetch('/api/auth/logs')
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`)
+    try {
+      const res = await fetch('/api/logs')
+      const data = await res.json()
+      setLogs(data.logs)
+      setFilteredLogs(data.logs)
+      setStats(data.stats)
+    } catch (err) {
+      console.error('Failed to fetch logs:', err)
     }
-
-    const data = await res.json()
-
-    setLogs(Array.isArray(data.logs) ? data.logs : [])
-    setFilteredLogs(Array.isArray(data.logs) ? data.logs : [])
-
-    setStats(
-      data.stats || {
-        sent: 0,
-        failed: 0,
-      }
-    )
-  } catch (err) {
-    console.error('Failed to fetch logs:', err)
-
-    setLogs([])
-    setFilteredLogs([])
-    setStats({
-      sent: 0,
-      failed: 0,
-    })
-  } finally {
     setLoading(false)
   }
-}
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -130,6 +239,8 @@ export default function DashboardPage() {
       log.recruiterEmail,
       log.subject,
       log.status,
+      log.body,
+      
       formatDate(log.createdAt),
       log.role || '',
       log.errorMessage || ''
@@ -137,7 +248,7 @@ export default function DashboardPage() {
 
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
     ].join('\n')
 
     const blob = new Blob([csvContent], { type: 'text/csv' })
